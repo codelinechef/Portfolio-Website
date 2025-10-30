@@ -86,20 +86,67 @@ const RedZone = () => {
       setTimeout(() => setShowLogs(true), 1600);
     }, 1000);
 
-    // Fetch geolocation
-    fetch('https://ipapi.co/json/')
-      .then(res => res.json())
-      .then(data => {
-        setLocation({
-          city: data.city,
-          region: data.region,
-          country: data.country_name,
-        });
-        setLocationLoading(false);
-      })
-      .catch(() => {
-        setLocationLoading(false);
-      });
+    // Fetch geolocation with high accuracy; fallback to IP-based lookup
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const { latitude, longitude } = pos.coords;
+          fetch(
+            `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
+          )
+            .then((res) => res.json())
+            .then((geo) => {
+              setLocation({
+                city: geo.city || geo.locality || geo.localityInfo?.administrative?.[0]?.name,
+                region: geo.principalSubdivision || geo.localityInfo?.administrative?.[1]?.name,
+                country: geo.countryName,
+              });
+              setLocationLoading(false);
+            })
+            .catch(() => {
+              // Fallback to IP API if reverse geocode fails
+              fetch('https://ipapi.co/json/')
+                .then((res) => res.json())
+                .then((data) => {
+                  setLocation({
+                    city: data.city,
+                    region: data.region,
+                    country: data.country_name,
+                  });
+                  setLocationLoading(false);
+                })
+                .catch(() => setLocationLoading(false));
+            });
+        },
+        () => {
+          // Permission denied or error — fallback to IP-based
+          fetch('https://ipapi.co/json/')
+            .then((res) => res.json())
+            .then((data) => {
+              setLocation({
+                city: data.city,
+                region: data.region,
+                country: data.country_name,
+              });
+              setLocationLoading(false);
+            })
+            .catch(() => setLocationLoading(false));
+        },
+        { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 }
+      );
+    } else {
+      fetch('https://ipapi.co/json/')
+        .then((res) => res.json())
+        .then((data) => {
+          setLocation({
+            city: data.city,
+            region: data.region,
+            country: data.country_name,
+          });
+          setLocationLoading(false);
+        })
+        .catch(() => setLocationLoading(false));
+    }
   }, [playSound]);
 
   useEffect(() => {

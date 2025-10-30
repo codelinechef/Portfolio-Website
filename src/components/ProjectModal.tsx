@@ -43,7 +43,7 @@ export const ProjectModal = ({ project, onClose }: ProjectModalProps) => {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
             transition={{ duration: 0.3 }}
-            className="relative glass-card rounded-2xl overflow-hidden max-w-4xl w-full max-h-[90vh] flex flex-col"
+            className="relative glass-card rounded-2xl overflow-hidden max-w-4xl w-full max-h-[90vh] flex flex-col z-50"
           >
             {/* Close Button */}
             <button
@@ -121,6 +121,7 @@ export const ProjectModal = ({ project, onClose }: ProjectModalProps) => {
                     href={project.github}
                     target="_blank"
                     rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
                     referrerPolicy="no-referrer"
                     className="flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-full glass-card hover:bg-primary/10 transition-colors font-semibold"
                     whileHover={{ scale: 1.05 }}
@@ -135,6 +136,7 @@ export const ProjectModal = ({ project, onClose }: ProjectModalProps) => {
                     href={project.live}
                     target="_blank"
                     rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
                     referrerPolicy="no-referrer"
                     className="flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-primary text-primary-foreground hover:shadow-lg transition-shadow font-semibold"
                     whileHover={{ scale: 1.05 }}
