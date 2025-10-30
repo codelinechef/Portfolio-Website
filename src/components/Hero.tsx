@@ -5,7 +5,7 @@ export const Hero = () => {
   const { theme } = useTheme();
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-screen flex items-center justify-center">
       <div className="container mx-auto px-4 z-10 relative">
         <div className="text-center">
           <div className="mb-4">

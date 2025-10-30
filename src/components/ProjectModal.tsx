@@ -1,6 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Github, ExternalLink } from 'lucide-react';
-import { useEffect } from 'react';
 
 interface Project {
   id: number;
@@ -20,17 +19,8 @@ interface ProjectModalProps {
 }
 
 export const ProjectModal = ({ project, onClose }: ProjectModalProps) => {
-  useEffect(() => {
-    if (project) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [project]);
-
+  // Allow background page to remain scrollable for seamless experience.
+  // Modal itself constrains height and scrolls internally.
   if (!project) return null;
 
   return (

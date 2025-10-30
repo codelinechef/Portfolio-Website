@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ExternalLink, Github } from 'lucide-react';
 import { ProjectModal } from './ProjectModal';
@@ -80,6 +81,7 @@ export const Projects = () => {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedProject, setSelectedProject] = useState<typeof projects[0] | null>(null);
   const { playSound } = useAudio();
+  const navigate = useNavigate();
 
   const filteredProjects = selectedCategory === 'All'
     ? projects
@@ -217,7 +219,10 @@ export const Projects = () => {
         {/* Project Modal */}
         <ProjectModal
           project={selectedProject}
-          onClose={() => setSelectedProject(null)}
+          onClose={() => {
+            setSelectedProject(null);
+            navigate('/');
+          }}
         />
       </div>
     </section>
