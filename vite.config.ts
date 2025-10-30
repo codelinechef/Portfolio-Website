@@ -10,7 +10,7 @@ export default defineConfig(({ mode }) => ({
     port: 8080,
   },
   // Use BASE_PATH for GitHub Pages project sites (e.g., "/repo-name/"). Defaults to "/".
-  base: process.env.BASE_PATH || "/",
+  base: '/Portfolio-Website/', ,
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
   resolve: {
     alias: {
