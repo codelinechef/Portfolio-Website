@@ -1,0 +1,186 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* Light Theme - Soft Pink Gradient */
+    --background: 340 100% 99%;
+    --background-secondary: 340 100% 97%;
+    --foreground: 240 10% 15%;
+    
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 15%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 15%;
+    
+    --primary: 338 100% 70%;
+    --primary-foreground: 0 0% 100%;
+    
+    --secondary: 340 70% 95%;
+    --secondary-foreground: 240 10% 15%;
+    
+    --muted: 340 50% 96%;
+    --muted-foreground: 240 6% 45%;
+    
+    --accent: 338 100% 70%;
+    --accent-foreground: 0 0% 100%;
+    
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+    
+    --border: 340 30% 90%;
+    --input: 340 30% 90%;
+    --ring: 338 100% 70%;
+    
+    --radius: 0.75rem;
+    
+    /* Custom portfolio tokens - Light */
+    --neon-pink: 338 100% 70%;
+    --neon-pink-glow: 338 100% 80%;
+    --glass-bg: 0 0% 100% / 0.6;
+    --glass-border: 340 50% 85%;
+    --gradient-start: 340 100% 99%;
+    --gradient-end: 340 100% 95%;
+    --particle-color: 338 100% 70%;
+    --shadow-color: 338 50% 70% / 0.15;
+  }
+
+  .dark {
+    /* Dark Theme - Neon Cyberpunk */
+    --background: 240 10% 4%;
+    --background-secondary: 240 10% 6%;
+    --foreground: 210 40% 98%;
+    
+    --card: 240 8% 8%;
+    --card-foreground: 210 40% 98%;
+    
+    --popover: 240 8% 8%;
+    --popover-foreground: 210 40% 98%;
+    
+    --primary: 210 100% 60%;
+    --primary-foreground: 240 10% 4%;
+    
+    --secondary: 240 10% 12%;
+    --secondary-foreground: 210 40% 98%;
+    
+    --muted: 240 8% 15%;
+    --muted-foreground: 215 20% 65%;
+    
+    --accent: 280 100% 70%;
+    --accent-foreground: 210 40% 98%;
+    
+    --destructive: 0 62.8% 50%;
+    --destructive-foreground: 210 40% 98%;
+    
+    --border: 240 10% 15%;
+    --input: 240 10% 15%;
+    --ring: 210 100% 60%;
+    
+    /* Custom portfolio tokens - Dark */
+    --neon-blue: 210 100% 60%;
+    --neon-purple: 280 100% 70%;
+    --neon-cyan: 180 100% 60%;
+    --neon-pink: 338 100% 70%;
+    --neon-glow: 210 100% 60% / 0.5;
+    --glass-bg: 240 8% 10% / 0.4;
+    --glass-border: 210 100% 60% / 0.2;
+    --gradient-start: 240 10% 4%;
+    --gradient-end: 240 10% 8%;
+    --particle-color: 210 100% 60%;
+    --shadow-color: 210 100% 60% / 0.3;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    background: linear-gradient(135deg, hsl(var(--gradient-start)), hsl(var(--gradient-end)));
+    min-height: 100vh;
+    backface-visibility: hidden;
+  }
+
+  /* Smooth scrolling */
+  html {
+    /* Keep native anchor smooth; Lenis manages wheel/touch */
+    scroll-behavior: smooth;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* Glass morphism effects */
+.glass-card {
+  background: hsl(var(--glass-bg));
+  backdrop-filter: blur(12px);
+  border: 1px solid hsl(var(--glass-border));
+  box-shadow: 0 8px 32px hsl(var(--shadow-color));
+}
+
+.glass-card-light {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 214, 231, 0.3);
+  box-shadow: 0 8px 32px rgba(255, 111, 163, 0.1);
+}
+
+/* Neon glow effects */
+.neon-glow {
+  text-shadow: 0 0 10px hsl(var(--neon-blue)), 
+               0 0 20px hsl(var(--neon-blue)),
+               0 0 30px hsl(var(--neon-blue));
+}
+
+.neon-glow-pink {
+  text-shadow: 0 0 10px hsl(var(--neon-pink)), 
+               0 0 20px hsl(var(--neon-pink-glow)),
+               0 0 30px hsl(var(--neon-pink-glow));
+}
+
+/* Magnetic button effect */
+.magnetic-hover {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--background));
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--primary));
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--accent));
+}
+/* Performance hints for large sections */
+section {
+  content-visibility: auto;
+  contain-intrinsic-size: 1000px;
+}
