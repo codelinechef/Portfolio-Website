@@ -7,7 +7,6 @@ import { HelmetProvider } from 'react-helmet-async';
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { AudioProvider } from "./contexts/AudioContext";
 import { AccessibilityProvider } from "./contexts/AccessibilityContext";
-import { SmoothScroll } from "./components/SmoothScroll";
 import Index from "./pages/Index";
 import RedZone from "./pages/RedZone";
 import NotFound from "./pages/NotFound";
@@ -30,16 +29,14 @@ const App = () => {
               <TooltipProvider>
                 <Toaster />
                 <Sonner />
-                <SmoothScroll>
-                  <BrowserRouter basename={import.meta.env.BASE_URL}>
-                    <Routes>
-                      <Route path="/" element={<Index />} />
-                      <Route path="/fyi" element={<RedZone />} />
-                      {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                      <Route path="*" element={<NotFound />} />
-                    </Routes>
-                  </BrowserRouter>
-                </SmoothScroll>
+                <BrowserRouter basename={import.meta.env.BASE_URL}>
+                  <Routes>
+                    <Route path="/" element={<Index />} />
+                    <Route path="/fyi" element={<RedZone />} />
+                    {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </BrowserRouter>
               </TooltipProvider>
             </AudioProvider>
           </ThemeProvider>

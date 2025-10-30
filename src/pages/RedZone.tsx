@@ -4,9 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAudio } from '@/contexts/AudioContext';
 import { detectGPUSupport, getGPUTier, shouldUseGPUEffects } from '@/utils/gpuDetection';
 import { useAccessibility } from '@/contexts/AccessibilityContext';
-import { RedZoneParticles } from '@/components/RedZoneParticles';
-import { RedZoneAudio } from '@/components/RedZoneAudio';
-import { CursorTrail } from '@/components/CursorTrail';
+// Heavy visuals/audio removed for smooth performance
 import { X } from 'lucide-react';
 
 interface GeoLocation {
@@ -135,14 +133,7 @@ const RedZone = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0a0000] via-[#1a0000] to-[#0a0000] text-white overflow-hidden relative">
-      {/* Red Zone Audio */}
-      <RedZoneAudio />
-      
-      {/* Cursor Trail */}
-      <CursorTrail />
-      
-      {/* Red Zone Particles */}
-      <RedZoneParticles />
+      {/* Heavy audio/particles/cursor effects removed */}
       
       {/* Scanline overlay */}
       <div className="absolute inset-0 pointer-events-none opacity-20">
