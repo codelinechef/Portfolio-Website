@@ -1,0 +1,7 @@
+# Audio files go here
+# Replace placeholder URLs in AudioContext.tsx with local files:
+# - ambient-loop.mp3
+# - click.mp3
+# - hover.mp3
+# - success.mp3
+# - nav.mp3
