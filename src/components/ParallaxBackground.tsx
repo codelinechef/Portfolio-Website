@@ -1,6 +1,6 @@
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Points, PointMaterial } from '@react-three/drei';
-import { useRef, useMemo } from 'react';
+import { useRef, useMemo, useEffect, useState } from 'react';
 import * as THREE from 'three';
 import { useTheme } from '@/contexts/ThemeContext';
 import { getOptimalDPR, shouldUseGPUEffects } from '@/utils/gpuDetection';
@@ -9,7 +9,15 @@ import { useAccessibility } from '@/contexts/AccessibilityContext';
 // Particle system component
 const ParticleField = ({ theme }: { theme: 'light' | 'dark' }) => {
   const ref = useRef<THREE.Points>(null);
-  const particleCount = theme === 'dark' ? 1500 : 1000;
+  const isLowEnd = (navigator.hardwareConcurrency || 2) < 4;
+  const particleCount = isLowEnd ? (theme === 'dark' ? 600 : 400) : (theme === 'dark' ? 900 : 600);
+  const [paused, setPaused] = useState(false);
+
+  useEffect(() => {
+    const onVisibility = () => setPaused(document.hidden);
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => document.removeEventListener('visibilitychange', onVisibility);
+  }, []);
 
   const [positions, colors] = useMemo(() => {
     const positions = new Float32Array(particleCount * 3);
@@ -35,10 +43,10 @@ const ParticleField = ({ theme }: { theme: 'light' | 'dark' }) => {
   }, [theme]);
 
   useFrame((state) => {
-    if (ref.current) {
-      ref.current.rotation.x = state.clock.elapsedTime * 0.05;
-      ref.current.rotation.y = state.clock.elapsedTime * 0.075;
-    }
+    if (paused || !ref.current) return;
+    const speedFactor = isLowEnd ? 0.4 : 1;
+    ref.current.rotation.x = state.clock.elapsedTime * 0.05 * speedFactor;
+    ref.current.rotation.y = state.clock.elapsedTime * 0.075 * speedFactor;
   });
 
   return (

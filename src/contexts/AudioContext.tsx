@@ -51,6 +51,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const glitchRef = useRef<Howl | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
+  const isLowEnd = (navigator.hardwareConcurrency || 2) < 4;
 
   useEffect(() => {
     // Initialize Web Audio API for spatial audio & analyser
@@ -67,7 +68,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     ambientRef.current = new Howl({
       src: [AMBIENT_TRACK],
       loop: true,
-      volume: 0.2,
+      volume: isLowEnd ? 0.15 : 0.2,
       html5: true,
     });
 
@@ -75,7 +76,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     voiceRef.current = new Howl({
       src: [VOICE_TRACK],
       loop: true,
-      volume: 0.4,
+      volume: isLowEnd ? 0.3 : 0.4,
       html5: true,
     });
 
@@ -93,20 +94,13 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       }
     }
 
-    // Initialize SFX
-    Object.entries(SOUND_EFFECTS).forEach(([key, src]) => {
-      sfxRef.current.set(key as SoundType, new Howl({
-        src: [src],
-        volume: 0.5,
-        preload: true,
-      }));
-    });
+    // SFX will be lazy-initialized on demand (no upfront preload)
 
-    // Initialize glitch effect
+    // Initialize glitch effect (deferred)
     glitchRef.current = new Howl({
       src: [GLITCH_EFFECT],
-      volume: 0.7,
-      preload: true,
+      volume: 0.6,
+      preload: false,
     });
 
     // Start ambient if not muted
@@ -127,6 +121,24 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       audioContextRef.current?.close();
     };
   }, []);
+
+  // Pause audio when tab hidden to save resources
+  useEffect(() => {
+    const onVisibility = () => {
+      const hidden = document.hidden;
+      if (hidden) {
+        ambientRef.current?.pause();
+        voiceRef.current?.pause();
+      } else {
+        if (!isMuted) {
+          ambientRef.current?.play();
+          if (!isVoiceMuted) voiceRef.current?.play();
+        }
+      }
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => document.removeEventListener('visibilitychange', onVisibility);
+  }, [isMuted, isVoiceMuted]);
 
   useEffect(() => {
     localStorage.setItem('audio-muted', isMuted.toString());
@@ -165,36 +177,47 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const playGlitchEffect = () => {
-    if (!isMuted && glitchRef.current) {
+    if (!isMuted) {
+      if (!glitchRef.current) {
+        glitchRef.current = new Howl({ src: [GLITCH_EFFECT], volume: 0.6, preload: false });
+      }
       glitchRef.current.play();
     }
   };
 
   const playSound = (sound: SoundType) => {
     if (!isMuted) {
-      const howl = sfxRef.current.get(sound);
-      howl?.play();
+      let howl = sfxRef.current.get(sound);
+      if (!howl) {
+        const src = SOUND_EFFECTS[sound];
+        howl = new Howl({ src: [src], volume: isLowEnd ? 0.4 : 0.5, preload: false });
+        sfxRef.current.set(sound, howl);
+      }
+      howl.play();
     }
   };
 
   const playSpatialSound = (sound: SoundType, x: number, y: number) => {
     if (!isMuted) {
-      const howl = sfxRef.current.get(sound);
-      if (howl) {
-        // Normalize position to -1 to 1 range
-        const normalizedX = (x / window.innerWidth) * 2 - 1;
-        const normalizedY = (y / window.innerHeight) * 2 - 1;
-        
-        // Apply stereo panning
-        howl.stereo(normalizedX);
-        
-        // Attenuate based on distance from center
-        const distance = Math.sqrt(normalizedX ** 2 + normalizedY ** 2);
-        const volume = Math.max(0.2, 1 - distance * 0.5);
-        howl.volume(volume * 0.5);
-        
-        howl.play();
+      let howl = sfxRef.current.get(sound);
+      if (!howl) {
+        const src = SOUND_EFFECTS[sound];
+        howl = new Howl({ src: [src], volume: isLowEnd ? 0.4 : 0.5, preload: false });
+        sfxRef.current.set(sound, howl);
       }
+      // Normalize position to -1 to 1 range
+      const normalizedX = (x / window.innerWidth) * 2 - 1;
+      const normalizedY = (y / window.innerHeight) * 2 - 1;
+      
+      // Apply stereo panning
+      howl.stereo(normalizedX);
+      
+      // Attenuate based on distance from center
+      const distance = Math.sqrt(normalizedX ** 2 + normalizedY ** 2);
+      const volume = Math.max(0.2, 1 - distance * 0.5);
+      howl.volume(volume * (isLowEnd ? 0.4 : 0.5));
+      
+      howl.play();
     }
   };
 

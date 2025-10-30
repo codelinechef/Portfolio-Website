@@ -14,24 +14,31 @@ import { useAccessibility } from '@/contexts/AccessibilityContext';
 const AnimatedSphere = ({ theme }: { theme: 'light' | 'dark' }) => {
   const meshRef = useRef<THREE.Mesh>(null);
   const mousePosition = useRef({ x: 0, y: 0 });
+  const isLowEnd = (navigator.hardwareConcurrency || 2) < 4;
 
   useFrame((state) => {
     if (meshRef.current) {
       // Gentle floating animation
-      meshRef.current.position.y = Math.sin(state.clock.elapsedTime * 0.5) * 0.3;
+      const floatSpeed = isLowEnd ? 0.3 : 0.5;
+      const floatAmp = isLowEnd ? 0.2 : 0.3;
+      meshRef.current.position.y = Math.sin(state.clock.elapsedTime * floatSpeed) * floatAmp;
 
       // Base autonomous rotation (ensures motion in both themes)
       const t = state.clock.elapsedTime;
-      const baseX = Math.sin(t * 0.5) * 0.2;
-      const baseY = Math.cos(t * 0.5) * 0.2;
+      const rotSpeed = isLowEnd ? 0.35 : 0.5;
+      const rotAmp = isLowEnd ? 0.15 : 0.2;
+      const baseX = Math.sin(t * rotSpeed) * rotAmp;
+      const baseY = Math.cos(t * rotSpeed) * rotAmp;
 
       // Target rotation combines base motion with mouse influence
-      const targetX = baseX + mousePosition.current.y * 0.1;
-      const targetY = baseY + mousePosition.current.x * 0.1;
+      const mouseInfluence = isLowEnd ? 0.06 : 0.1;
+      const targetX = baseX + mousePosition.current.y * mouseInfluence;
+      const targetY = baseY + mousePosition.current.x * mouseInfluence;
 
       // Smoothly approach target
-      meshRef.current.rotation.x += (targetX - meshRef.current.rotation.x) * 0.05;
-      meshRef.current.rotation.y += (targetY - meshRef.current.rotation.y) * 0.05;
+      const lerp = isLowEnd ? 0.035 : 0.05;
+      meshRef.current.rotation.x += (targetX - meshRef.current.rotation.x) * lerp;
+      meshRef.current.rotation.y += (targetY - meshRef.current.rotation.y) * lerp;
     }
   });
 
@@ -63,15 +70,16 @@ const AnimatedSphere = ({ theme }: { theme: 'light' | 'dark' }) => {
 export const Hero = () => {
   const { theme } = useTheme();
   const { playSound, playSpatialSound } = useAudio();
-  const { disableAllEffects } = useAccessibility();
+  const { disableAllEffects, reducedMotion } = useAccessibility();
   const [isDragging, setIsDragging] = useState(false);
+  const isLowEnd = (navigator.hardwareConcurrency || 2) < 4;
   
   const sphereX = useMotionValue(0);
   const sphereY = useMotionValue(0);
   const sphereSpringX = useSpring(sphereX, { stiffness: 150, damping: 20 });
   const sphereSpringY = useSpring(sphereY, { stiffness: 150, damping: 20 });
 
-  const useGPU = shouldUseGPUEffects() && !disableAllEffects;
+  const useGPU = shouldUseGPUEffects() && !disableAllEffects && !reducedMotion;
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
@@ -142,14 +150,12 @@ export const Hero = () => {
             cursor: isDragging ? 'grabbing' : 'grab',
           }}
           animate={{
-            scale: isDragging ? 1.1 : [1, 1.05, 1],
+            scale: isDragging ? 1.05 : reducedMotion || isLowEnd ? 1 : [1, 1.04, 1],
           }}
           transition={{
-            scale: {
-              duration: 3,
-              repeat: Infinity,
-              ease: 'easeInOut',
-            },
+            scale: reducedMotion || isLowEnd
+              ? { duration: 0.6, ease: 'easeOut' }
+              : { duration: 3, repeat: Infinity, ease: 'easeInOut' },
           }}
         />
       )}
