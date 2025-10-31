@@ -54,7 +54,7 @@ export const Resume = () => {
             My professional journey and qualifications
           </p>
           <motion.a
-            href="/resume.pdf"
+            href={`${import.meta.env.BASE_URL}resume.pdf`}
             download
             onClick={handleDownload}
             className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary text-primary-foreground font-semibold hover:shadow-lg transition-shadow"
